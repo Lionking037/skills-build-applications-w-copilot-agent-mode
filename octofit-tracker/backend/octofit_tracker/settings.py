@@ -20,21 +20,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-o5=la_##rw@mzv861v%-#)e29@iuzfia2*citz#w^stiy8me&9'
+SECRET_KEY = 'django-insecure-va#3-5$c4wry0+(gfz%o&c&wgy8bc9=@6%!pry&gn*(*y^)x!2'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 import os
-# Dynamically set ALLOWED_HOSTS for Codespaces and localhost
-
-# Dynamically set ALLOWED_HOSTS for Codespaces and localhost
-codespace_name = os.environ.get('CODESPACE_NAME')
+CODESPACE_NAME = os.environ.get('CODESPACE_NAME')
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-if codespace_name:
-    # Allow Codespace public URL and subdomains
-    ALLOWED_HOSTS.append(f"{codespace_name}-8000.app.github.dev")
-    ALLOWED_HOSTS.append(f".{codespace_name}-8000.app.github.dev")
+if CODESPACE_NAME:
+    ALLOWED_HOSTS.append(f"{CODESPACE_NAME}-8000.app.github.dev")
 
 
 # Application definition
@@ -46,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'octofit_tracker.apps.OctofitTrackerConfig',
+    'octofit_tracker',
     'rest_framework',
     'djongo',
     'corsheaders',
@@ -93,15 +88,11 @@ DATABASES = {
         'NAME': 'octofit_db',
         'ENFORCE_SCHEMA': False,
         'CLIENT': {
-            'host': 'mongodb://localhost:27017',
-        }
+            'host': 'localhost',
+            'port': 27017,
+        },
     }
 }
-# CORS settings
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_HEADERS = ['*']
-CORS_ALLOW_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
 
 
 # Password validation
@@ -136,9 +127,19 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
+# Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# CORS settings
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = ['*']
+CORS_ALLOW_METHODS = ['*']
+
+# Allow all hosts
+# (already set above)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

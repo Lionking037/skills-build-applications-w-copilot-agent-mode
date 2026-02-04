@@ -3,6 +3,7 @@
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.1/topics/http/urls/
 Examples:
+Function views
     1. Add an import:  from my_app import views
     2. Add a URL to urlpatterns:  path('', views.home, name='home')
 Class-based views
@@ -12,48 +13,37 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-
-
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
 from django.http import JsonResponse
 import os
-from . import views
-
-# Register all viewsets with the router
-router = DefaultRouter()
-router.register(r'users', views.UserViewSet, basename='user')
-router.register(r'teams', views.TeamViewSet, basename='team')
-router.register(r'activities', views.ActivityViewSet, basename='activity')
-router.register(r'leaderboard', views.LeaderboardViewSet, basename='leaderboard')
-router.register(r'workouts', views.WorkoutViewSet, basename='workout')
+from rest_framework import routers
+from .views import UserViewSet, TeamViewSet, ActivityViewSet, WorkoutViewSet, LeaderboardViewSet
 
 def api_root(request):
-    # Use $CODESPACE_NAME for Codespaces, fallback to localhost for local dev
-    codespace_name = os.environ.get('CODESPACE_NAME')
-    if codespace_name:
-        # Codespaces: use HTTPS, substitute the actual $CODESPACE_NAME value
-        base_url = f"https://{codespace_name}-8000.app.github.dev"
+    codespace_name = os.environ.get('CODESPACE_NAME', 'localhost')
+    if codespace_name and codespace_name != 'localhost':
+        api_url = f"https://{codespace_name}-8000.app.github.dev/api/"
     else:
-        # Localhost: use HTTP
-        base_url = "http://localhost:8000"
+        api_url = "http://localhost:8000/api/"
     return JsonResponse({
-        "activities": f"{base_url}/api/activities/",
-        "users": f"{base_url}/api/users/",
-        "teams": f"{base_url}/api/teams/",
-        "leaderboard": f"{base_url}/api/leaderboard/",
-        "workouts": f"{base_url}/api/workouts/"
+        "activities": f"{api_url}activities/",
+        "teams": f"{api_url}teams/",
+        "users": f"{api_url}users/",
+        "leaderboard": f"{api_url}leaderboard/",
+        "workouts": f"{api_url}workouts/"
     })
 
-from django.shortcuts import redirect
-
-def root_redirect(request):
-    return redirect('/api/')
+router = routers.DefaultRouter()
+router.register(r'users', UserViewSet)
+router.register(r'teams', TeamViewSet)
+router.register(r'activities', ActivityViewSet)
+router.register(r'workouts', WorkoutViewSet)
+router.register(r'leaderboard', LeaderboardViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', root_redirect),
-    path('api/', api_root, name='api-root'),
     path('api/', include(router.urls)),
+    path('api/', api_root),
+    path('', api_root),
 ]
